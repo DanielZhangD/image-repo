@@ -1,0 +1,6 @@
+https://stackoverflow.com/questions/65786221/import-flask-could-not-be-resolved-from-source-pylance-reportmissingmodulesou
+
+https://blog.miguelgrinberg.com/post/how-to-create-a-react--flask-project
+
+run with yarn start for react
+run with yarn start-backend for flask (after starting venv with source venv/bin/activate)
