@@ -1,17 +1,26 @@
 import React, {useState, useEffect} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Image from './components/images/images';
 
 function App() {
-  const [getImages, setGetImage] = useState(0);
-
+  const [getImage, setGetImage] = useState(0);
+  /*
   useEffect(() => {
-    fetch('/images').then(res => res.json()).then(data => {
+    fetch('/get-images', {headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',}
+    }).then(res => res.text()).then(text => console.log(text))
+  }, []);*/
+  useEffect(() => {
+    fetch('/get-images', {headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',}}).then(res => res.json()).then(data => {
       setGetImage(data);
     });
   }, []);
 
-  console.log(getImages);
+  console.log(getImage);
   
   return (
     <div className="App">
@@ -28,6 +37,8 @@ function App() {
         >
           Learn React
         </a>
+        <Image imageData = {getImage}/>
+
       </header>
     </div>
   );

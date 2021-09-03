@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from models import db, Image, Transaction
 import json
+import time
+
 
 
 
@@ -14,6 +16,7 @@ import json
 # App Config.
 #----------------------------------------------------------------------------#
 app = Flask(__name__)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 database_name = "image-repo"
 database_path = "postgresql://{}:{}@{}/{}".format('danielzhang', '', 'localhost:5432', database_name)
@@ -67,11 +70,12 @@ def transactions():
 #  Images
 #  ----------------------------------------------------------------#
 
-
-@app.route('/images')
+# , methods=['GET']
+@app.route('/get-images')
 def images():
     image_query = Image.query.all()
     data = []
+    print("hello")
     for image in image_query:
         data.append({
             "image_name": image.name,
@@ -83,3 +87,8 @@ def images():
             "transactions": image.transactions,
         })
     return jsonify(data)
+
+
+@app.route('/time')
+def get_current_time():
+    return {'time': time.time()}
