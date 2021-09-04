@@ -1,9 +1,12 @@
 import React from "react";
 import { useTable } from 'react-table';
+import BuyButton from './buy-button.js';
 
 
 
-function ImageTable({data }) {
+
+function ImageTable({data}) {
+
     const columns = React.useMemo(
         () => [
                 {
@@ -31,7 +34,15 @@ function ImageTable({data }) {
                         <img
                             src = {value}
                             width={60}
+                            alt={value}
                         />
+                    )
+                },
+                {
+                    Header: "Buy Image",
+                    accessor: "image_id",
+                    Cell: ({ cell }) => (
+                        <BuyButton  imageId = {cell.row.values.image_id}/>
                     )
                 }
 

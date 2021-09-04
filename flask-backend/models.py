@@ -1,15 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
-app = Flask(__name__)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-database_name = "image-repo"
-database_path = "postgresql://{}:{}@{}/{}".format('danielzhang', '', 'localhost:5432', database_name)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = database_path
 
-db = SQLAlchemy(app)
-
+db = SQLAlchemy()
 
 class Image(db.Model):
     __tablename__ = 'Image'
@@ -34,8 +28,3 @@ class Transaction(db.Model):
     cost = db.Column(db.Float, nullable=False)
     image_id = db.Column(db.Integer, db.ForeignKey('Image.id'), nullable=False)
 
-
-
-
-if __name__ == '__main__':
-    db.create_all()
