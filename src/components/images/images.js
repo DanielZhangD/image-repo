@@ -1,36 +1,20 @@
-import React from "react";
 import "./images.css";
 import ImageTable from "./image-table.js"
+import React, {useState, useEffect} from 'react';
 
-function Images({imageData}) {
+
+function Images() {
+    const [imageData, setImageData] = useState(0);
+    useEffect(() => {
+      fetch('/get-images', {headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',}}).then(res => res.json()).then(data => {
+        setImageData(data);
+      });
+    }, []);
+  
+    console.log(imageData);
     const data = imageData;
-
-    const columns = React.useMemo(
-        () => [
-                {
-                    Header: 'Image Information',
-                        columns: [
-                        {
-                            Header: 'Name',
-                            accessor: 'image_name',
-                        },
-                        {
-                            Header: 'Description',
-                            accessor: 'description',
-                        },
-                        {
-                            Header: 'Price',
-                            accessor:'price'
-                        },
-                        {
-                            Header: 'Stock',
-                            accessor: 'stock'
-                        }
-                    ],
-                },
-            ],
-        []
-    )
 
     
     if (imageData === 0 || imageData === null) {
@@ -43,7 +27,7 @@ function Images({imageData}) {
         <div className="images">
             <label className="section-title">Image Information</label>
             <div>
-                <ImageTable columns={columns} data={data} />
+                <ImageTable data={data} />
             </div>
         </div>
     );

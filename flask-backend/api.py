@@ -8,6 +8,7 @@ from flask_migrate import Migrate
 from models import db, Image, Transaction
 import json
 import time
+import sys
 
 
 
@@ -32,38 +33,30 @@ migrate = Migrate(app, db)
 #  hello :)
 #  ----------------------------------------------------------------#
 
-@app.route('/')
-def hello():
-    image_query = Image.query.all()
-    images = []
-    for image in image_query:
-        images.append({
-            "image_name": image.name,
-            "address": image.address,
-            "description": image.description,
-            "colour": image.colour,
-            "price": image.price,
-            "stock": image.stock,
-            "transactions": image.transactions,
-        })
-    return jsonify(images)
+
 
 
 #  ----------------------------------------------------------------#
 #  Transactions
 #  ----------------------------------------------------------------#
 
-@app.route('/transactions')
+@app.route('/get-transactions')
 def transactions():
     transactions_query = Transaction.query.order_by(Transaction.transaction_time).all()
     data = []
     for transaction in transactions_query:
-        #image_name = Image.query(Image.name).get(transaction.image_id)
+        image_name = Image.query.get(transaction.image_id)
+        transaction_type = "Sell"
+        if transaction.transaction_type:
+            transaction_type = "Buy"
         data.append({
+            "transaction_type": transaction_type,
+            "transaction_time": transaction.transaction_time,
+            "image_name": image_name.name,
             "cost": transaction.cost,
-            "transaction_type": transaction.transaction_type,
-            "transaction_type": transaction.transaction_time,
+
         })
+    db.session.close()
     return jsonify(data)
 
 #  ----------------------------------------------------------------#
@@ -75,7 +68,6 @@ def transactions():
 def images():
     image_query = Image.query.all()
     data = []
-    print("hello")
     for image in image_query:
         data.append({
             "image_name": image.name,
@@ -84,11 +76,29 @@ def images():
             "colour": image.colour,
             "price": image.price,
             "stock": image.stock,
-            "transactions": image.transactions,
         })
+    db.session.close()
     return jsonify(data)
 
+@app.route('/buy-image', methods=['POST'])
+def buy(image_id):
+    try:
+        image = Image.query.get(image_id)
+        if (image.stock == 0):
+            flash("Error: Stock is empty!")
+        image.stock -= 1
+        db.session.commit()
+    except:
+        db.session.rollback()
+        flash("Error: Image could not be bought!")
+    else:
+        flash('Image successfully bought!')
+    finally:
+        db.session.close()
+    
 
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
+
+
+@app.teardown_appcontext
+def shutdown_session(exception=None):
+    db.session.remove()

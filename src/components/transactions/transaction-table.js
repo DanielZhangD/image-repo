@@ -3,38 +3,25 @@ import { useTable } from 'react-table';
 
 
 
-function ImageTable({data }) {
+function TransactionTable({data }) {
     const columns = React.useMemo(
         () => [
                 {
-                    Header: 'Name',
+                    Header: 'Transaction Type',
+                    accessor: 'transaction_type',
+                },
+                {
+                    Header: 'Transaction Time',
+                    accessor: 'transaction_time',
+                },
+                {
+                    Header: 'Associated Image',
                     accessor: 'image_name',
                 },
                 {
-                    Header: 'Description',
-                    accessor: 'description',
-                },
-                {
                     Header: 'Price',
-                    accessor:'price'
-                },
-                {
-                    Header: 'Stock',
-                    accessor: 'stock'
-                },
-                {
-                    Header: "Image",
-                    accessor: 'address',
-                    maxWidth: 80,
-                    minWidth: 80,
-                    Cell: ({cell: {value}}) => (
-                        <img
-                            src = {value}
-                            width={60}
-                        />
-                    )
+                    accessor:'cost'
                 }
-
             ],
         []
     )
@@ -55,7 +42,7 @@ function ImageTable({data }) {
 
     // Render the UI for your table
     return (
-        <table {...getTableProps()} className="image-table" style={
+        <table {...getTableProps()} className="transaction-table" style={
             {
                 border: 'solid 2px Purple',
                 fontFamily: 'Roboto'
@@ -92,12 +79,11 @@ function ImageTable({data }) {
                                 return (
                                     <td {...cell.getCellProps()} className="table-cell" style = {
                                         {
-                                            padding: '5px',
+                                            padding: '10px',
                                             border: 'solid 1px gray',
                                             color: 'black',
                                             fontFamily: 'Roboto',
-                                            background: 'white',
-                                            fontSize: '20px'
+                                            background: 'white'
                                         }
                                     }>
                                         {cell.render('Cell')}
@@ -112,4 +98,4 @@ function ImageTable({data }) {
     )
 }
 
-export default ImageTable;
+export default TransactionTable;
