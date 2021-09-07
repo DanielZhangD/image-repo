@@ -2,13 +2,16 @@
 # Imports
 #----------------------------------------------------------------------------#
 
-from flask import Flask, render_template, request, Response, flash, jsonify
+from flask import Flask, render_template, request, Response, flash, jsonify, url_for, session, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 # from models import db, Image, Transaction
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 import os
 import sys
+from datetime import datetime
+import logging
+from werkzeug.utils import secure_filename
 
 
 
@@ -29,6 +32,8 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 CORS(app)
+UPLOAD_FOLDER = '.../public'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 #----------------------------------------------------------------------------#
@@ -56,14 +61,6 @@ class Transaction(db.Model):
     transaction_time = db.Column(db.DateTime, nullable=False)
     cost = db.Column(db.Float, nullable=False)
     image_id = db.Column(db.Integer, db.ForeignKey('Image.id'), nullable=False)
-
-
-#  ----------------------------------------------------------------#
-#  hello :)
-#  ----------------------------------------------------------------#
-
-
-
 
 #  ----------------------------------------------------------------#
 #  Transactions
@@ -110,14 +107,21 @@ def images():
     db.session.close()
     return jsonify(data)
 
+
+
 @app.route('/buy-image', methods=['POST'])
 def buy():
     buy_json = request.get_json()
     if not buy_json:
         return jsonify({'msg': 'No Image ID!'}), 400
     image_id = buy_json.get('imageId')
-    amount = int(buy_json.get('amount'))
-
+    try:
+        amount = int(buy_json.get('amount'))
+    except:
+        return jsonify({'msg': 'Not Integer!'}), 400
+    if amount <= 0:
+        return jsonify({'msg': 'Must be higher than zero!'}), 400
+    image = None
     try:
         image = Image.query.get(image_id)
         # ERror Checking
@@ -136,14 +140,44 @@ def buy():
     except:
         db.session.rollback()
         return jsonify({'msg': 'ERROR!'}), 400
-    finally:
-        print("Completed", file=sys.stderr)
-        print(image.stock, file=sys.stderr)
-        print()
-        db.session.flush()
-        db.session.close()
-    return ('', 204)
     
+    cost = image.price * amount
+    try:
+        newTransaction = Transaction(transaction_type=True, transaction_time=datetime.now(), cost=cost, image_id=image_id)
+        db.session.add(newTransaction)
+        db.session.commit()
+    except:
+        return jsonify({'msg': 'error!'}), 400
+
+    db.session.close()
+    return ('', 204)
+
+
+
+@app.route('/upload-image', methods = ['GET', 'POST'])
+def images():
+    upload_json = request.get_json()
+    # check that json exists!
+    if not upload_json:
+        return jsonify({'msg': 'No Image ID!'}), 400
+    name = upload_json.get('name')
+    description = upload_json.get('description')
+    colour = upload_json.get('colour')
+    stock = upload_json.get('stock')
+    price = upload_json.get('price')    
+    file = request.files['file'] 
+    filename = secure_filename(file.filename)
+    # destination!
+    destination = os.path.join(UPLOAD_FOLDER, filename)
+    try:
+        new_image = Image(name=name, address=filename, description=description, colour=colour, price=price, stock=stock)
+        db.session.add(new_image)
+        db.session.commit()
+        file.save(destination)
+    except:
+        db.session.rollback()
+        return jsonify({'msg': 'ERROR!'}), 400
+    return ('', 204)
 
 
 

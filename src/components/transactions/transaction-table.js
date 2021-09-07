@@ -19,7 +19,7 @@ function TransactionTable({data }) {
                     accessor: 'image_name',
                 },
                 {
-                    Header: 'Price',
+                    Header: 'Transaction Money',
                     accessor:'cost'
                 }
             ],
@@ -79,11 +79,12 @@ function TransactionTable({data }) {
                                 return (
                                     <td {...cell.getCellProps()} className="table-cell" style = {
                                         {
-                                            padding: '10px',
+                                            padding: '5px',
                                             border: 'solid 1px gray',
                                             color: 'black',
                                             fontFamily: 'Roboto',
-                                            background: 'white'
+                                            background: 'white',
+                                            fontSize: '20px'
                                         }
                                     }>
                                         {cell.render('Cell')}
